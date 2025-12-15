@@ -191,7 +191,7 @@ export default function Account() {
             <TabsContent value="login">
               <Card className="border-none shadow-none">
                 <CardHeader className="px-0">
-                  <CardTitle className="text-2xl">Welcome backkkkkkk</CardTitle>
+                  <CardTitle className="text-2xl">Welcome back</CardTitle>
                   <CardDescription>
                     Enter your email to sign in to your account
                   </CardDescription>
