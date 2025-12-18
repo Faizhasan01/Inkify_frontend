@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
-import { useLocation, useParams } from "wouter";
+import { useLocation, useParams} from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, CheckCircle, XCircle } from "lucide-react";
+import { Lock, CheckCircle, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ResetPassword() {
   const { toast } = useToast();
+
+  const [, setLocation] = useLocation()
   
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
