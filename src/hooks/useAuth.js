@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "wouter";
 import { getApiUrl } from "../lib/api.js";
 
 export function useAuth() {
@@ -9,6 +10,7 @@ export function useAuth() {
   });
 
   const apiUrl = getApiUrl();
+  const [location] = useLocation();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -39,8 +41,22 @@ export function useAuth() {
   }, [apiUrl]);
 
   useEffect(() => {
+    
+    if (
+      location === "/login" ||
+      location === "/register" ||
+      location.startsWith("/reset-password")
+    ) {
+      setState((prev) => ({
+        ...prev,
+        isLoading: false, 
+      }));
+      return; 
+    }
+
+   
     checkAuth();
-  }, [checkAuth]);
+  }, [checkAuth, location]);
 
   const login = async (email, password) => {
     const response = await fetch(`${apiUrl}/api/auth/login`, {
