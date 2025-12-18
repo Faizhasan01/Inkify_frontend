@@ -22,68 +22,10 @@ export default function Account() {
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
-  const [isSendingReset, setIsSendingReset] = useState(false);
-  const [resetLinkGenerated, setResetLinkGenerated] = useState(null);
-  const [copied, setCopied] = useState(false);
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setIsSendingReset(true);
-    setResetLinkGenerated(null);
-    
-    try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.resetToken) {
-        const resetUrl = `${window.location.origin}/reset-password/${data.resetToken}`;
-        setResetLinkGenerated(resetUrl);
-        toast({
-          title: "Reset link generated",
-          description: "Copy the link below to reset your password.",
-        });
-      } else if (response.ok) {
-        toast({
-          title: "Request processed",
-          description: data.message || "If the email exists, a reset link has been generated.",
-        });
-        setShowForgotPassword(false);
-      } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to process request.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSendingReset(false);
-    }
+  const handleForgotPassword = () => {
+    setLocation("/reset-password");
   };
 
-  const copyResetLink = () => {
-    if (resetLinkGenerated) {
-      navigator.clipboard.writeText(resetLinkGenerated);
-      setCopied(true);
-      toast({
-        title: "Copied!",
-        description: "Reset link copied to clipboard.",
-      });
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -235,7 +177,7 @@ export default function Account() {
                     <Button 
                       variant="link" 
                       className="text-sm text-muted-foreground"
-                      onClick={() => setShowForgotPassword(true)}
+                      onClick={handleForgotPassword}
                     >
                       Forgot your password?
                     </Button>
@@ -308,92 +250,6 @@ export default function Account() {
           </Tabs>
         </div>
       </div>
-
-      <Dialog open={showForgotPassword} onOpenChange={(open) => {
-        setShowForgotPassword(open);
-        if (!open) {
-          setResetLinkGenerated(null);
-          setForgotEmail("");
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
-            <DialogDescription>
-              Enter your email address and we'll generate a reset link for you.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {!resetLinkGenerated ? (
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="forgot-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="forgot-email" 
-                    placeholder="name@example.com" 
-                    type="email" 
-                    className="pl-9" 
-                    required
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowForgotPassword(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" className="flex-1" disabled={isSendingReset}>
-                  {isSendingReset ? "Generating..." : "Get Reset Link"}
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div className="p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="font-medium">Reset link generated!</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Copy this link and open it in a new tab to reset your password. The link expires in 1 hour.
-                </p>
-                <div className="flex gap-2">
-                  <Input 
-                    value={resetLinkGenerated} 
-                    readOnly 
-                    className="text-xs"
-                  />
-                  <Button 
-                    type="button" 
-                    size="icon"
-                    onClick={copyResetLink}
-                  >
-                    {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
-              <Button 
-                onClick={() => {
-                  setShowForgotPassword(false);
-                  setResetLinkGenerated(null);
-                  setForgotEmail("");
-                }}
-                className="w-full"
-              >
-                Done
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

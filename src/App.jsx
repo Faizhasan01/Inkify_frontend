@@ -44,7 +44,7 @@ function Router() {
       <Route path="/" component={ProtectedHome} />
       <Route path="/room/:roomId" component={ProtectedHome} />
       <Route path="/account" component={Account} />
-      <Route path="/reset-password/:token" component={ResetPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
     </Switch>
   );

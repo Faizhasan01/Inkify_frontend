@@ -9,44 +9,111 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ResetPassword() {
-  const [, setLocation] = useLocation();
-  const params = useParams();
-  const token = params?.token;
   const { toast } = useToast();
   
-  const [isVerifying, setIsVerifying] = useState(true);
-  const [isValid, setIsValid] = useState(false);
+  const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      verifyToken();
+    const handleRequestOTP = async (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [token]);
 
-  const verifyToken = async () => {
+    setIsSubmitting(true);
+    
     try {
-      const response = await fetch(`/api/auth/verify-reset-token/${token}`);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
       const data = await response.json();
-      
-      if (response.ok && data.valid) {
-        setIsValid(true);
-        setEmail(data.email);
+
+      if (response.ok) {
+        setStep("otp");
+        toast({
+          title: "OTP sent",
+          description: "Check your email for a 6-digit code.",
+        });
       } else {
-        setIsValid(false);
+        toast({
+          title: "Error",
+          description: data.error || "Failed to send OTP.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      setIsValid(false);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setIsVerifying(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "Please enter a valid 6-digit code.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("/api/auth/verify-reset-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.valid) {
+        setStep("password");
+        toast({
+          title: "OTP verified",
+          description: "Now set your new password.",
+        });
+      } else {
+        toast({
+          title: "Invalid OTP",
+          description: data.error || "The code is invalid or expired.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to verify OTP.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
@@ -73,7 +140,7 @@ export default function ResetPassword() {
       const response = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword }),
+        body: JSON.stringify({ email, otp, newPassword }),
       });
 
       const data = await response.json();
@@ -101,38 +168,6 @@ export default function ResetPassword() {
       setIsSubmitting(false);
     }
   };
-
-  if (isVerifying) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Verifying reset link...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isValid) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-8">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <XCircle className="w-16 h-16 text-destructive mx-auto" />
-              <h2 className="text-2xl font-semibold">Invalid or Expired Link</h2>
-              <p className="text-muted-foreground">
-                This password reset link is invalid or has expired. Please request a new one.
-              </p>
-              <Button onClick={() => setLocation("/account")} className="w-full">
-                Back to Login
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (isSuccess) {
     return (
@@ -189,56 +224,140 @@ export default function ResetPassword() {
       <div className="flex-1 flex items-center justify-center p-8 relative">
         <div className="w-full max-w-md space-y-8">
           <Card className="border-none shadow-none">
-            <CardHeader className="px-0">
-              <CardTitle className="text-2xl">Reset Password</CardTitle>
-              <CardDescription>
-                Enter a new password for {email}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-0 space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      id="new-password" 
-                      type="password" 
-                      className="pl-9" 
-                      required
-                      minLength={6}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="At least 6 characters"
-                    />
+            {step === "email" && (
+              <>
+                <CardHeader className="px-0">
+                  <CardTitle className="text-2xl">Reset Password</CardTitle>
+                  <CardDescription>
+                    Enter your email to receive a verification code
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-0">
+                  <form onSubmit={handleRequestOTP} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          className="pl-9" 
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="your@email.com"
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? "Sending..." : "Send Code"}
+                    </Button>
+                  </form>
+                  <div className="text-center mt-4">
+                    <Button variant="link" onClick={() => setLocation("/account")}>
+                      Back to Login
+                    </Button>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      id="confirm-password" 
-                      type="password" 
-                      className="pl-9" 
-                      required
-                      minLength={6}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm your new password"
-                    />
+                </CardContent>
+              </>
+            )}
+
+            {step === "otp" && (
+              <>
+                <CardHeader className="px-0">
+                  <CardTitle className="text-2xl">Verify Code</CardTitle>
+                  <CardDescription>
+                    Enter the 6-digit code sent to {email}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-0">
+                  <form onSubmit={handleVerifyOTP} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">Verification Code</Label>
+                      <Input 
+                        id="otp" 
+                        type="text" 
+                        maxLength="6"
+                        className="text-center text-2xl tracking-widest font-mono"
+                        required
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                        placeholder="000000"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Code expires in 10 minutes
+                      </p>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting || otp.length !== 6}>
+                      {isSubmitting ? "Verifying..." : "Verify Code"}
+                    </Button>
+                  </form>
+                  <div className="text-center mt-4 space-y-2">
+                    <Button variant="link" onClick={() => setStep("email")} className="w-full text-xs">
+                      Try different email
+                    </Button>
+                    <Button variant="link" onClick={() => setLocation("/account")}>
+                      Back to Login
+                    </Button>
                   </div>
-                </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Resetting..." : "Reset Password"}
-                </Button>
-              </form>
-              <div className="text-center">
-                <Button variant="link" onClick={() => setLocation("/account")}>
-                  Back to Login
-                </Button>
-              </div>
-            </CardContent>
+                </CardContent>
+              </>
+            )}
+
+            {step === "password" && (
+              <>
+                <CardHeader className="px-0">
+                  <CardTitle className="text-2xl">Set New Password</CardTitle>
+                  <CardDescription>
+                    Enter your new password for {email}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-0">
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="new-password" 
+                          type="password" 
+                          className="pl-9" 
+                          required
+                          minLength={6}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="At least 6 characters"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="confirm-password" 
+                          type="password" 
+                          className="pl-9" 
+                          required
+                          minLength={6}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm your new password"
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? "Resetting..." : "Reset Password"}
+                    </Button>
+                  </form>
+                  <div className="text-center mt-4">
+                    <Button variant="link" onClick={() => setLocation("/account")}>
+                      Back to Login
+                    </Button>
+                  </div>
+                </CardContent>
+              </>
+            )}
           </Card>
         </div>
       </div>
