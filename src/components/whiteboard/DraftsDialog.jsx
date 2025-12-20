@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileText, Trash2, Loader2 } from "lucide-react";
-import { apiRequest } from "@/lib/api"; 
-// import { getApiUrl } from "@/lib/api";
-// const API_URL = getApiUrl(); 
+// import { apiRequest } from "@/lib/api"; 
+import { getApiUrl } from "@/lib/api";
+const API_URL = getApiUrl(); 
 
 
 export function DraftsDialog({ open, onClose }) {
@@ -23,20 +23,20 @@ export function DraftsDialog({ open, onClose }) {
   const handleOpenDraftInNewTab = async (draft) => {
     setLoadingDraftId(draft._id);
     try {
-      const { roomId } = await apiRequest("/api/rooms", {
-        method: "POST",
-      });
-
-      // const response = await fetch(`${API_URL}/api/rooms`, {
+      // const { roomId } = await apiRequest("/api/rooms", {
       //   method: "POST",
-      //   credentials: "include",
       // });
+
+      const response = await fetch(`${API_URL}/api/rooms`, {
+        method: "POST",
+        credentials: "include",
+      });
       
-      // if (!response.ok) {
-      //   throw new Error("Failed to create room");
-      // }
+      if (!response.ok) {
+        throw new Error("Failed to create room");
+      }
       
-      // const { roomId } = await response.json();
+      const { roomId } = await response.json();
       window.open(`${window.location.origin}/room/${roomId}?draftId=${draft._id}`, '_blank');
       onClose();
     } catch (error) {
@@ -49,14 +49,14 @@ export function DraftsDialog({ open, onClose }) {
   const fetchDrafts = async () => {
     setIsLoading(true);
     try {
-      const drafts = await apiRequest("/api/drafts");
-      // const response = await fetch(`${API_URL}/api/drafts`, {
-      //   credentials: "include",
-      // });
-      // if (response.ok) {
-      //   const data = await response.json();
-      //   setDrafts(data);
-      // }
+      // const data = await fetch("/api/drafts");
+      const response = await fetch(`${API_URL}/api/drafts`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDrafts(data);
+      }
     } catch (error) {
       console.error("Failed to fetch drafts:", error);
     } finally {
@@ -74,13 +74,17 @@ export function DraftsDialog({ open, onClose }) {
     e.stopPropagation();
     setDeletingId(id);
     try {
-      await apiRequest(`/api/drafts/${id}`, {
-        method: "DELETE",
+      // await apiRequest(`/api/drafts/${id}`, {
+      //   method: "DELETE",
+      // });
+      const response = await fetch(`/api/draft/${draftId}`, {
+        credentials: "include",
       });
       
-      // if (response.ok) {
-      //   setDrafts(drafts.filter(d => d._id !== id));
-      // }
+      const draftData = await response.json();
+      if (response.ok) {
+        setDrafts(drafts.filter(d => d._id !== id));
+      }
       setDrafts((prev) => prev.filter((d) => d._id !== id));
     } catch (error) {
       console.error("Failed to delete draft:", error);

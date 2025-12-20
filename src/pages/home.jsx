@@ -12,8 +12,9 @@ import { Share2, Menu, User, FileText, LogOut, Settings, Save, FilePlus, Copy, L
 import { useToast } from "@/hooks/use-toast";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuthContext } from "@/App";
-import { apiRequest } from "@/lib/api";
-
+// import { apiRequest } from "@/lib/api";
+import { getApiUrl } from "@/lib/api";
+const API_URL = getApiUrl(); 
 
 export default function Home() {
   const { toast } = useToast();
@@ -68,27 +69,27 @@ export default function Home() {
     if (!pendingSaveTitle) return;
     
     try {
-      const data = await apiRequest("/api/drafts", {
-        method: "POST",
-        body: {
-          title: pendingSaveTitle,
-          pages: pages,
-        },
-      });
-
-      // const response = await fetch(`${API_URL}/api/drafts`, {
+      // const data = await apiRequest("/api/drafts", {
       //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   credentials: "include",
-      //   body: JSON.stringify({
+      //   body: {
       //     title: pendingSaveTitle,
       //     pages: pages,
-      //   }),
+      //   },
       // });
 
-      // const data = await response.json();
+      const response = await fetch(`${API_URL}/api/drafts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          title: pendingSaveTitle,
+          pages: pages,
+        }),
+      });
+
+      const data = await response.json();
       
       if (!response.ok) {
         setSaveDraftError(data.error || "Failed to save draft");
@@ -156,8 +157,10 @@ export default function Home() {
     if (draftId && isConnected) {
       const loadDraft = async () => {
         try {
-          const draftData = await apiRequest(`/api/draft/${draftId}`);
-          
+          // const draftData = await apiRequest(`/api/draft/${draftId}`);
+          const response = await fetch(`${API_URL}/api/draft/${draftId}`, {
+            credentials: "include",
+          });
           if (!response.ok) {
             throw new Error("Failed to fetch draft");
           }
@@ -269,13 +272,18 @@ export default function Home() {
 
   const handleNewDraft = async () => {
     try {
-      const { roomId } = await apiRequest("/api/rooms", { method: "POST" });
-      window.open(`/room/${roomId}`, "_blank");
+      // const { roomId } = await apiRequest("/api/rooms", { method: "POST" });
+      // window.open(`/room/${roomId}`, "_blank");
+      const response = await fetch(`${API_URL}/api/rooms`, {
+        method: "POST",
+        credentials: "include",
+      });
       
       if (!response.ok) {
         throw new Error("Failed to create room");
       }
       
+      const { roomId } = await response.json();
       
       window.open(`${window.location.origin}/room/${roomId}`, '_blank');
       setIsSidebarOpen(false);
