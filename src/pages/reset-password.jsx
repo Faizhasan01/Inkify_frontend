@@ -7,6 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock, CheckCircle, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { getApiUrl } from "@/lib/api";
+
+const API_URL = getApiUrl(); 
+
 
 export default function ResetPassword() {
   const { toast } = useToast();
@@ -36,7 +40,7 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -83,7 +87,7 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/auth/verify-reset-otp", {
+      const response = await fetch(`${API_URL}/api/auth/verify-reset-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -139,7 +143,7 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, newPassword }),
