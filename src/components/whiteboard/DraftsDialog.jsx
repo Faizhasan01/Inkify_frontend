@@ -77,11 +77,12 @@ export function DraftsDialog({ open, onClose }) {
       // await apiRequest(`/api/drafts/${id}`, {
       //   method: "DELETE",
       // });
-      const response = await fetch(`/api/draft/${draftId}`, {
+      const response = await fetch(`/api/draft/${id}`, {
+        method: "DELETE",
         credentials: "include",
       });
       
-      const draftData = await response.json();
+      // const draftData = await response.json();
       if (response.ok) {
         setDrafts(drafts.filter(d => d._id !== id));
       }
