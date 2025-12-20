@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileText, Trash2, Loader2 } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
+
+const API_URL = getApiUrl(); 
+
 
 export function DraftsDialog({ open, onClose }) {
   const [drafts, setDrafts] = useState([]);
@@ -19,7 +23,7 @@ export function DraftsDialog({ open, onClose }) {
   const handleOpenDraftInNewTab = async (draft) => {
     setLoadingDraftId(draft._id);
     try {
-      const response = await fetch("/api/rooms", {
+      const response = await fetch(`${API_URL}/api/rooms`, {
         method: "POST",
         credentials: "include",
       });
@@ -41,7 +45,7 @@ export function DraftsDialog({ open, onClose }) {
   const fetchDrafts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/drafts", {
+      const response = await fetch(`${API_URL}/api/drafts`, {
         credentials: "include",
       });
       if (response.ok) {

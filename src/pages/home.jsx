@@ -12,6 +12,9 @@ import { Share2, Menu, User, FileText, LogOut, Settings, Save, FilePlus, Copy, L
 import { useToast } from "@/hooks/use-toast";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuthContext } from "@/App";
+import { getApiUrl } from "@/lib/api";
+
+const API_URL = getApiUrl();
 
 export default function Home() {
   const { toast } = useToast();
@@ -66,7 +69,7 @@ export default function Home() {
     if (!pendingSaveTitle) return;
     
     try {
-      const response = await fetch("/api/drafts", {
+      const response = await fetch(`${API_URL}/api/drafts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -261,7 +264,7 @@ export default function Home() {
 
   const handleNewDraft = async () => {
     try {
-      const response = await fetch("/api/rooms", {
+      const response = await fetch(`${API_URL}/api/rooms`, {
         method: "POST",
         credentials: "include",
       });
