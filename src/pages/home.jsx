@@ -68,7 +68,7 @@ export default function Home() {
     if (!pendingSaveTitle) return;
     
     try {
-      const response = await apiRequest("/api/drafts", {
+      const data = await apiRequest("/api/drafts", {
         method: "POST",
         body: {
           title: pendingSaveTitle,
@@ -88,7 +88,7 @@ export default function Home() {
       //   }),
       // });
 
-      const data = await response.json();
+      // const data = await response.json();
       
       if (!response.ok) {
         setSaveDraftError(data.error || "Failed to save draft");
