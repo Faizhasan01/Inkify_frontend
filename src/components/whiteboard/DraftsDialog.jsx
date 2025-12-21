@@ -77,14 +77,16 @@ export function DraftsDialog({ open, onClose }) {
       // await apiRequest(`/api/drafts/${id}`, {
       //   method: "DELETE",
       // });
-      const response = await fetch(`${API_URL}/api/draft/${id}`, {
+      const response = await fetch(`${API_URL}/api/drafts/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
       
       // const draftData = await response.json();
       
-      
+      if (!response.ok) {
+      throw new Error("Delete failed");
+    }
       setDrafts((prev) => prev.filter((d) => d._id !== id));
     } catch (error) {
       console.error("Failed to delete draft:", error);
