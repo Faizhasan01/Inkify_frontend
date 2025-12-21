@@ -384,7 +384,7 @@ export default function Home() {
             }}
           >
             <Save className="w-4 h-4" />
-            Save
+            Save Draft
           </Button>
           <Button 
             variant="ghost" 

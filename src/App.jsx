@@ -9,6 +9,8 @@ import Account from "@/pages/account";
 import ResetPassword from "@/pages/reset-password";
 import { useAuth } from "@/hooks/useAuth";
 import { createContext, useContext } from "react";
+import Landing from "@/pages/landing";
+
 
 export const AuthContext = createContext(null);
 
@@ -41,10 +43,14 @@ function ProtectedHome() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={ProtectedHome} />
-      <Route path="/room/:roomId" component={ProtectedHome} />
+      {/* Public routes */}
+      <Route path="/" component={Landing} />
       <Route path="/account" component={Account} />
       <Route path="/reset-password" component={ResetPassword} />
+      
+      {/* Protected routes */}
+      <Route path="/room/:roomId" component={ProtectedHome} />
+
       <Route component={NotFound} />
     </Switch>
   );
