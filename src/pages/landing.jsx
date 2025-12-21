@@ -89,7 +89,7 @@ export default function Landing() {
         <section className="min-h-[90vh] flex flex-col justify-center items-center px-4 py-20 text-center">
           <div className="max-w-4xl mx-auto">
             <div className="inline-block mb-6 px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-full text-sm font-semibold">
-              The Creative Workspace of Tomorrow
+              The Creative Workspace for Everyone
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -109,24 +109,13 @@ export default function Landing() {
                 Start Creating Now
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button 
-                size="lg"
-                variant="outline"
-                className="border-white/20 hover:bg-white/10 text-white font-semibold text-lg px-8 py-6"
-              >
-                Watch Demo
-              </Button>
             </div>
 
             {/* Trust indicators */}
             <div className="flex justify-center gap-8 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Free for teams up to 5</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>No credit card required</span>
+                <span>Free for everyone</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -190,33 +179,12 @@ export default function Landing() {
               ))}
             </div>
           </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-12">
-              <h2 className="text-4xl font-bold mb-4">Ready to Create Something Amazing?</h2>
-              <p className="text-slate-300 mb-8 text-lg">Join teams worldwide who are sketching, designing, and collaborating on Inkify.</p>
-              
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold px-8 py-6"
-                onClick={() => setLocation("/account")}
-              >
-                Start Your Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              
-              <p className="text-slate-400 text-sm mt-4">✨ No credit card required • Setup in seconds</p>
-            </div>
-          </div>
-        </section>
+        </section>        
       </main>
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/10 py-8 px-4 text-center text-slate-400 text-sm">
-        <p>&copy; 2024 Inkify. Where ideas take shape, together.</p>
+        <p>&copy; 2025 Inkify. Where ideas take shape, together.</p>
       </footer>
     </div>
   );
