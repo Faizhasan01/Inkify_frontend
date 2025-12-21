@@ -34,7 +34,7 @@ function ProtectedHome() {
   }
   
   if (!isAuthenticated) {
-    return <Redirect to="/Landing" />;
+    return <Landing/>;
   }
   
   return <Home />;
