@@ -158,13 +158,13 @@ export default function Home() {
       const loadDraft = async () => {
         try {
           // const draftData = await apiRequest(`/api/draft/${draftId}`);
-          const response = await fetch(`${API_URL}/api/draft/${draftId}`, {
+          const response = await fetch(`${API_URL}/api/drafts/${draftId}`, {
             credentials: "include",
           });
           if (!response.ok) {
             throw new Error("Failed to fetch draft");
           }
-          
+          const draftData = await response.json();
           
           
           if (draftData.pages && draftData.pages.length > 0) {
