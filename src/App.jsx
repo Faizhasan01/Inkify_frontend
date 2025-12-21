@@ -34,7 +34,7 @@ function ProtectedHome() {
   }
   
   if (!isAuthenticated) {
-    return <Redirect to="/account" />;
+    return <Redirect to="/Landing" />;
   }
   
   return <Home />;
@@ -43,14 +43,10 @@ function ProtectedHome() {
 function Router() {
   return (
     <Switch>
-      {/* Public routes */}
-      <Route path="/" component={Landing} />
+      <Route path="/" component={ProtectedHome} />
+      <Route path="/room/:roomId" component={ProtectedHome} />
       <Route path="/account" component={Account} />
       <Route path="/reset-password" component={ResetPassword} />
-      
-      {/* Protected routes */}
-      <Route path="/room/:roomId" component={ProtectedHome} />
-
       <Route component={NotFound} />
     </Switch>
   );
